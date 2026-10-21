@@ -1,8 +1,14 @@
+<<<<<<< HEAD
 import os
 from typing import List
 
 from amsatop import Htop, Process, TaskType
 from amsatop.utils import get_stat_file_from_path
+=======
+from typing import List
+
+from amsatop import Htop, Process
+>>>>>>> 2ce8645e1403659dde7bda0da494cb8091ef38f1
 
 
 class Amsatop(Htop):
@@ -10,6 +16,7 @@ class Amsatop(Htop):
         super().__init__()
 
     def get_processes(self) -> List[Process]:
+<<<<<<< HEAD
         processes = []
 
         for entry in os.listdir(self.proc_folder):
@@ -77,6 +84,10 @@ class Amsatop(Htop):
 
         return processes    
     
+=======
+        raise NotImplementedError("Prac-2.1 implementation needed")
+
+>>>>>>> 2ce8645e1403659dde7bda0da494cb8091ef38f1
     def get_priorities(self) -> List[Process]:
         raise NotImplementedError("Prac-2.2 implementation needed")
 
