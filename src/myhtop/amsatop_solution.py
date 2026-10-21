@@ -9,6 +9,53 @@ class Amsatop(Htop):
     def __init__(self):
         super().__init__()
 
+    def _thread_parents(self) -> dict[int, str]:
+        parents = {}
+
+        for pid in os.listdir(self.proc_folder):
+            if not pid.isdigit():
+                continue
+
+            task_dir = os.path.join(self.proc_folder, pid, "task")
+
+            try:
+                threads = os.listdir(task_dir)
+            except OSError:
+                continue
+
+            for tid in threads:
+                if tid.isdigit() and tid != pid:
+                    parents[int(tid)] = pid
+
+        return parents
+
+    def _task_file_path(
+        self,
+        process: Process,
+        file_name: str,
+        thread_parents: dict[int, str]
+    ) -> str | None:
+
+        if process.type == TaskType.THREAD:
+            parent_pid = thread_parents.get(process.pid)
+
+            if parent_pid is None:
+                return None
+
+            return os.path.join(
+                self.proc_folder,
+                parent_pid,
+                "task",
+                str(process.pid),
+                file_name
+            )
+
+        return os.path.join(
+            self.proc_folder,
+            str(process.pid),
+            file_name
+        )
+    
     def get_processes(self) -> List[Process]:
         processes = []
 
@@ -81,12 +128,17 @@ class Amsatop(Htop):
         processes = self.get_processes()
         result = []
 
+        thread_parents = self._thread_parents()
+
         for process in processes:
-            stat_path = os.path.join(
-                self.proc_folder,
-                str(process.pid),
-                "stat"
+            stat_path = self._task_file_path(
+                process,
+                "stat",
+                thread_parents
             )
+
+            if stat_path is None:
+                continue
 
             stat = get_stat_file_from_path(stat_path)
 
@@ -103,23 +155,31 @@ class Amsatop(Htop):
             result.append(new_process)
 
         return result
-
+    
     def get_hup(self) -> List[Process]:
         processes = self.get_priorities()
         result = []
 
+        thread_parents = self._thread_parents()
+
         for process in processes:
-            status_path = os.path.join(
-                self.proc_folder,
-                str(process.pid),
-                "status"
+            status_path = self._task_file_path(
+                process,
+                "status",
+                thread_parents
             )
+
+            if status_path is None:
+                continue
 
             try:
                 with open(status_path, encoding="utf-8") as file:
                     for line in file:
                         if line.startswith("SigIgn:"):
-                            sig_ign = int(line.split()[1], 16)
+                            sig_ign = int(
+                                line.partition(":")[2].strip(),
+                                16
+                            )
 
                             if sig_ign & 1:
                                 result.append(process)
