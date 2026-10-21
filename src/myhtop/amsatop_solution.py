@@ -105,4 +105,28 @@ class Amsatop(Htop):
         return result
 
     def get_hup(self) -> List[Process]:
-        raise NotImplementedError("Prac-2.3 implementation needed")
+        processes = self.get_priorities()
+        result = []
+
+        for process in processes:
+            status_path = os.path.join(
+                self.proc_folder,
+                str(process.pid),
+                "status"
+            )
+
+            try:
+                with open(status_path, encoding="utf-8") as file:
+                    for line in file:
+                        if line.startswith("SigIgn:"):
+                            sig_ign = int(line.split()[1], 16)
+
+                            if sig_ign & 1:
+                                result.append(process)
+
+                            break
+
+            except (OSError, ValueError):
+                continue
+
+        return result
