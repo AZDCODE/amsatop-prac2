@@ -1,0 +1,108 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+
+  test-2-1:
+    name: Practice 2.1
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up uv
+        uses: astral-sh/setup-uv@v6
+        with:
+          python-version: "3.13"
+          enable-cache: true
+          cache-dependency-path: |
+            **/uv.lock
+            **/pyproject.toml
+
+      - name: Install system dependencies
+        run: sudo apt-get update && sudo apt-get install -y libfuse2t64
+
+      - name: Install Python dependencies
+        run: uv sync --locked --all-extras
+
+      - name: Run tests
+        run: uv run pytest test/prac_2_1
+
+
+  test-2-2:
+    name: Practice 2.2
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up uv
+        uses: astral-sh/setup-uv@v6
+        with:
+          python-version: "3.13"
+          enable-cache: true
+          cache-dependency-path: |
+            **/uv.lock
+            **/pyproject.toml
+
+      - name: Install system dependencies
+        run: sudo apt-get update && sudo apt-get install -y libfuse2t64
+
+      - name: Install Python dependencies
+        run: uv sync --locked --all-extras
+
+      - name: Run tests
+        run: uv run pytest test/prac_2_2
+
+
+  test-2-3:
+    name: Practice 2.3
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up uv
+        uses: astral-sh/setup-uv@v6
+        with:
+          python-version: "3.13"
+          enable-cache: true
+          cache-dependency-path: |
+            **/uv.lock
+            **/pyproject.toml
+
+      - name: Install system dependencies
+        run: sudo apt-get update && sudo apt-get install -y libfuse2t64
+
+      - name: Install Python dependencies
+        run: uv sync --locked --all-extras
+
+      - name: Run tests
+        run: uv run pytest test/prac_2_3
+
+
+  ruff:
+    name: Ruff
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up uv
+        uses: astral-sh/setup-uv@v6
+        with:
+          python-version: "3.13"
+          enable-cache: true
+          cache-dependency-path: |
+            **/uv.lock
+            **/pyproject.toml
+
+      - name: Install Python dependencies
+        run: uv sync --locked --all-extras
+
+      - name: Run Ruff
+        run: uv run ruff check --output-format=github .
+
